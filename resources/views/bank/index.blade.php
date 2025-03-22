@@ -109,14 +109,15 @@
             </div>
           </div>
 
-          <!-- Delete Button -->
-          <form action="{{ route('bank.destroy', $user->id) }}" method="POST" class="mt-2">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="w-full bg-gray-600 text-white py-2 rounded-lg font-semibold hover:bg-gray-700 transition-all" onclick="return confirm('Are you sure you want to delete this user?');">
-              ❌ Delete
-            </button>
-          </form>
+      <!-- Delete Button -->
+      <form action="{{ route('bank.destroy', $user->id) }}" method="POST" class="mt-2">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="w-full bg-gray-600 text-white py-2 rounded-lg font-semibold hover:bg-gray-700 transition-all" onclick="return confirm('Are you sure you want to delete this user?');">
+          ❌ Delete
+        </button>
+      </form>
+
         </div>
       @endforeach
     </div>

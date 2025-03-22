@@ -60,12 +60,11 @@
                     <div class="mb-4">
                         <label for="balance" class="block text-gray-700 font-medium">💰 Balance</label>
                         <input type="number" id="balance" name="balance" 
-                            value="{{ old('balance') }}" 
+                            value="{{ old('balance') ? number_format(old('balance'), 2, '.', '') : '' }}" 
                             step="0.01" 
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400" 
                             required>
                     </div>
-
 
                     <!-- Submit Button -->
                     <div class="mt-6 text-center">

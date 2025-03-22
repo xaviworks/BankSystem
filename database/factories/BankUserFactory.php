@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\BankUser;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\BankUser;
 
 class BankUserFactory extends Factory
 {
@@ -17,6 +17,7 @@ class BankUserFactory extends Factory
             'last_name'    => $this->faker->lastName,
             'occupation'   => $this->faker->jobTitle,
             'balance'      => $this->faker->randomFloat(2, 100, 5000),
+            'is_deleted'   => false, // Default to active users
         ];
     }
 }

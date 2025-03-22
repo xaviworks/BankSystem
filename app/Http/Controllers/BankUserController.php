@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\DB;
 
 class BankUserController extends Controller
 {
-    // Display a list of bank accounts along with functionality to check balance, withdraw, deposit, and transfer
+    // Display a list of active bank accounts (excluding soft-deleted ones)
     public function index()
     {
-        $bankUsers = BankUser::all(); // Fetch all bank users
+        $bankUsers = BankUser::where('is_deleted', false)->get();
         return view('bank.index', compact('bankUsers'));
     }
 
@@ -34,7 +34,7 @@ class BankUserController extends Controller
     // Update an existing bank user account
     public function update(Request $request, $id)
     {
-        $bankUser = BankUser::findOrFail($id);
+        $bankUser = BankUser::where('is_deleted', false)->findOrFail($id);
 
         $this->validateBankUser($request);
 
@@ -43,19 +43,28 @@ class BankUserController extends Controller
         return redirect()->route('bank.index')->with('success', 'Bank user updated successfully!');
     }
 
-    // Delete an existing bank user account
+    // Soft delete an existing bank user account
     public function destroy($id)
     {
-        $bankUser = BankUser::findOrFail($id);
-        $bankUser->delete();
+        $bankUser = BankUser::where('is_deleted', false)->findOrFail($id);
+        $bankUser->update(['is_deleted' => true]); // Soft delete instead of removing
 
-        return redirect()->route('bank.index')->with('success', 'Bank user deleted successfully!');
+        return redirect()->route('bank.index')->with('success', 'Bank user soft-deleted successfully!');
+    }
+
+    // Restore a soft-deleted bank user
+    public function restore($id)
+    {
+        $bankUser = BankUser::where('is_deleted', true)->findOrFail($id);
+        $bankUser->update(['is_deleted' => false]); // Restore user
+
+        return redirect()->route('bank.index')->with('success', 'Bank user restored successfully!');
     }
 
     // Check balance of a bank user account
     public function checkBalance($id)
     {
-        $bankUser = BankUser::findOrFail($id);
+        $bankUser = BankUser::where('is_deleted', false)->findOrFail($id);
         return view('bank.check_balance', compact('bankUser'));
     }
 
@@ -63,17 +72,15 @@ class BankUserController extends Controller
     public function withdraw(Request $request, $id)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:0.01',  // Ensure amount is positive
+            'amount' => 'required|numeric|min:0.01',
         ]);
 
-        $bankUser = BankUser::findOrFail($id);
+        $bankUser = BankUser::where('is_deleted', false)->findOrFail($id);
 
-        // Check if the bank user has sufficient balance
         if ($bankUser->balance < $request->amount) {
             return back()->with('error', 'Insufficient balance!');
         }
 
-        // Deduct the withdrawal amount
         $bankUser->balance -= $request->amount;
         $bankUser->save();
 
@@ -84,12 +91,11 @@ class BankUserController extends Controller
     public function deposit(Request $request, $id)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:0.01',  // Ensure amount is positive
+            'amount' => 'required|numeric|min:0.01',
         ]);
 
-        $bankUser = BankUser::findOrFail($id);
+        $bankUser = BankUser::where('is_deleted', false)->findOrFail($id);
 
-        // Add the deposit amount
         $bankUser->balance += $request->amount;
         $bankUser->save();
 
@@ -100,27 +106,23 @@ class BankUserController extends Controller
     public function transfer(Request $request, $id)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:0.01',  // Ensure amount is positive
-            'recipient_id' => 'required|exists:bank_users,id',  // Ensure recipient exists
+            'amount' => 'required|numeric|min:0.01',
+            'recipient_id' => 'required|exists:bank_users,id',
         ]);
 
-        // Using a transaction for atomic operation
         DB::beginTransaction();
 
         try {
-            $sender = BankUser::findOrFail($id);
-            $recipient = BankUser::findOrFail($request->recipient_id);
+            $sender = BankUser::where('is_deleted', false)->findOrFail($id);
+            $recipient = BankUser::where('is_deleted', false)->findOrFail($request->recipient_id);
 
-            // Check if the sender has sufficient balance for the transfer
             if ($sender->balance < $request->amount) {
                 return back()->with('error', 'Insufficient balance for transfer!');
             }
 
-            // Perform the transfer
             $sender->balance -= $request->amount;
             $recipient->balance += $request->amount;
 
-            // Save both sender and recipient balances
             $sender->save();
             $recipient->save();
 
@@ -143,7 +145,7 @@ class BankUserController extends Controller
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
             'occupation' => 'required|string|max:255',
-            'balance' => 'required|numeric',  // Balance should be numeric and cannot be negative
+            'balance' => 'required|numeric',
         ]);
     }
 }

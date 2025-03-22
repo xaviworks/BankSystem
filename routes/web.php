@@ -9,10 +9,8 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
-// Dashboard route (authenticated and verified users only)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Redirect dashboard to bank.index
+Route::get('/dashboard', [BankUserController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 // Bank user routes (with authentication and verified users)
 Route::prefix('bank')->middleware(['auth', 'verified'])->group(function () {
