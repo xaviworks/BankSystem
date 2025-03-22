@@ -72,10 +72,8 @@
               <h3 class="font-semibold text-lg text-gray-800 mb-2">Withdraw</h3>
               <form action="{{ route('bank.withdraw', $user->id) }}" method="POST">
                 @csrf
-                <div class="flex justify-between items-center mb-2">
-                  <input type="number" name="amount" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Amount to Withdraw" required min="0.01" step="0.01">
-                </div>
-                <button type="submit" class="w-full bg-red-500 text-white py-2 rounded-lg font-semibold hover:bg-red-600 transition-all">Withdraw</button>
+                <input type="number" name="amount" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Amount to Withdraw" required min="0.01" step="0.01">
+                <button type="submit" class="w-full bg-red-500 text-white py-2 rounded-lg font-semibold hover:bg-red-600 transition-all mt-2">Withdraw</button>
               </form>
             </div>
           </div>
@@ -86,10 +84,8 @@
               <h3 class="font-semibold text-lg text-gray-800 mb-2">Deposit</h3>
               <form action="{{ route('bank.deposit', $user->id) }}" method="POST">
                 @csrf
-                <div class="flex justify-between items-center mb-2">
-                  <input type="number" name="amount" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Amount to Deposit" required min="0.01" step="0.01">
-                </div>
-                <button type="submit" class="w-full bg-green-500 text-white py-2 rounded-lg font-semibold hover:bg-green-600 transition-all">Deposit</button>
+                <input type="number" name="amount" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Amount to Deposit" required min="0.01" step="0.01">
+                <button type="submit" class="w-full bg-green-500 text-white py-2 rounded-lg font-semibold hover:bg-green-600 transition-all mt-2">Deposit</button>
               </form>
             </div>
           </div>
@@ -100,25 +96,27 @@
               <h3 class="font-semibold text-lg text-gray-800 mb-2">Transfer</h3>
               <form action="{{ route('bank.transfer', $user->id) }}" method="POST">
                 @csrf
-                <div class="flex justify-between items-center mb-2">
-                  <input type="number" name="amount" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Amount to Transfer" required min="0.01" step="0.01">
-                </div>
-
-                <!-- Recipient Dropdown -->
-                <div class="flex justify-between items-center mb-2">
-                  <select name="recipient_id" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
-                    @foreach ($bankUsers as $recipient)
-                      @if ($recipient->id != $user->id)
-                        <option value="{{ $recipient->id }}">{{ $recipient->first_name }} {{ $recipient->last_name }}</option>
-                      @endif
-                    @endforeach
-                  </select>
-                </div>
-
-                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg font-semibold hover:bg-blue-600 transition-all">Transfer</button>
+                <input type="number" name="amount" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Amount to Transfer" required min="0.01" step="0.01">
+                <select name="recipient_id" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mt-2" required>
+                  @foreach ($bankUsers as $recipient)
+                    @if ($recipient->id != $user->id)
+                      <option value="{{ $recipient->id }}">{{ $recipient->first_name }} {{ $recipient->last_name }}</option>
+                    @endif
+                  @endforeach
+                </select>
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg font-semibold hover:bg-blue-600 transition-all mt-2">Transfer</button>
               </form>
             </div>
           </div>
+
+          <!-- Delete Button -->
+          <form action="{{ route('bank.destroy', $user->id) }}" method="POST" class="mt-2">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="w-full bg-gray-600 text-white py-2 rounded-lg font-semibold hover:bg-gray-700 transition-all" onclick="return confirm('Are you sure you want to delete this user?');">
+              ❌ Delete
+            </button>
+          </form>
         </div>
       @endforeach
     </div>
